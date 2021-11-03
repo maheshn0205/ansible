@@ -1,0 +1,9 @@
+---
+- name: Add content to the web page
+  template:
+    src: "{{ custom_template }}"
+    dest: "{{ web_dest }}"
+  notify:
+    - restart_httpd
+...
+        

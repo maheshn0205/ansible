@@ -1,0 +1,13 @@
+---
+- name: Enable and run the {{ http_srv }} and {{ firewall_srv }}
+  service:
+    name: "{{ http_srv }}"
+    state: started
+    enabled: true
+
+- name: Enable and run the {{ firewall_srv }} service
+  service:
+    name: "{{ firewall_srv }}"
+    state: started
+    enabled: true
+...

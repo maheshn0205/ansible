@@ -1,0 +1,11 @@
+---
+- name: install packages
+  yum:
+    name: "{{ http_pkg }}"
+    state: latest
+
+- name: install packages
+  yum:
+    name: "{{ firewall_pkg }}"
+    state: latest
+...

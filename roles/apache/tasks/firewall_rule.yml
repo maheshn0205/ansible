@@ -1,0 +1,8 @@
+---
+- name: Add {{ http_rule }} to open firewall
+  firewalld:
+    service: "{{ http_rule }}"
+    state: enabled
+    permanent: true
+    immediate: true
+...

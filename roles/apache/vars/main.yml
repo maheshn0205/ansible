@@ -1,0 +1,9 @@
+---
+# vars file for apache
+http_pkg: httpd
+firewall_pkg: firewalld
+http_srv: httpd
+firewall_srv: firewalld
+http_rule: http
+custom_template: index.j2
+web_dest: /var/www/html/index.html
