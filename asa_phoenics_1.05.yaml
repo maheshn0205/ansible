@@ -1,0 +1,70 @@
+---
+- name: ASA/Phoenics CentOS 8 Ansible Playbook...
+  hosts: snow
+  remote_user: root
+
+  tasks:
+  - name: install epel-release
+    yum:
+      name: epel-release
+      state: latest
+  - name: Install ipmitool
+    yum:
+      name: ipmitool
+      state: latest
+    yum:
+      name: sshpass
+      state: latest
+
+  - name: Install stress package
+    yum:
+      name: stress
+      state: latest
+  - name: Install perl (needed for kernel-devel dependencies...)
+    yum:
+      name: perl
+      state: latest
+
+  - name: Creating RPMs directory under /tmp
+    file:
+      path: /tmp/rpms
+      state: directory
+
+  - name: Grab Ampere RPMs...
+    get_url:
+      url: http://10.0.8.41/ampere/centos/SRP1.05a/{{ item }}
+      dest: /tmp/rpms
+      force: yes
+    loop:
+    - bpftool-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - bpftool-debuginfo-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-core-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-cross-headers-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-debuginfo-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-debuginfo-common-aarch64-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-devel-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-headers-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-modules-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+    - kernel-modules-extra-4.18.0-80.11.2.el8.20210225+amp.aarch64.rpm
+
+    register: item
+  - name: Find all rpm files in /tmp folder
+    find:
+      paths: "/tmp/rpms/"
+      patterns: "*.rpm"
+    register: rpm_files
+
+  - name: Setting rpm_list
+    set_fact:
+      rpm_list: "{{ rpm_files.files | map(attribute='path') | list}}"
+
+  - name: installing the rpm files for Ampere...
+    yum:
+      name: "{{ rpm_list }}"
+      state: present
+      allow_downgrade: yes
+    with_items: "{{ rpm_files.files }}"
+
+  - name: Setting default kernel to 'kernel-4.18.0-80.11.2.el8.20210225+amp.aarch64'
+    shell: 'grubby --set-default "/boot/vmlinuz-4.18.0-80.11.2.el8.20210225+amp.aarch64"'
